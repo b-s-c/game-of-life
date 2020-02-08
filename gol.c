@@ -28,18 +28,28 @@ void read_in_file(FILE *infile, struct universe *u)
     }
 
     int max_index = 1;      /* track array size (same for both arrays) */
-    int num_cells = 0;      /* keep track of no. cells */
-    int c = 0;              /* store character */
+    int width = 0;          /* store width of grid*/
+    int height = 0;         /* and height of grid*/
+    int c = 0;              /* store current character */
     int x = 0, y = 0;       /* track which cell we're at */
     int first_entry = TRUE; /* is this the first coord we're recording? */
 
     /* if file supplied~ */
     while ((c=getc(infile))!=EOF) {
-        num_cells += 1;
+        if (x == 511 && c != '\n') {  /* we're incrementing from zero, remember~ */
+            printf("Column is over 512 characters wide (incl. newline). Exiting.\n");
+            exit(1);
+        }
         if (c == '.') {
         } else if (c == '\n') {
             /* new row reached */
             y += 1;
+            if (width == 0) {
+                width = x++;
+            } else if (x++ != width) {
+                printf("Inconsistent line widths. Exiting.\n");
+                exit(1);
+            }
             x = 0;
             continue;
         } else if (c == '*') {
@@ -76,8 +86,10 @@ void read_in_file(FILE *infile, struct universe *u)
         }
         x += 1;
     }
+    height = y++;
     int i;
     for (i = 0; i < max_index; i++) {
         printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
     }
+    printf("w: %d, h: %d\n", width, height);
 }

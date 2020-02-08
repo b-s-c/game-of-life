@@ -2,7 +2,8 @@
 #include "gol.h"
 
 /* gameoflife.c: a program to test the library */
-/*int argc, char argv[]*/
+
+/*int main(int argc, char argv[])*/
 int main()
 {
     struct universe v; 
