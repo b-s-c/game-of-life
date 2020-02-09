@@ -85,12 +85,12 @@ void read_in_file(FILE *infile, struct universe *u)
     u->height = height;
     u->num_living_cells = max_index;
 
-    int i;
+    /*int i;
     for (i = 0; i < u->num_living_cells; i++) {
         printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
     }
     printf("num living cells: %d\n", u->num_living_cells);
-    printf("w: %d, h: %d\n", u->width, u->height);
+    printf("w: %d, h: %d\n", u->width, u->height);*/
 }
 
 /* void write_out_file(FILE *outfile, struct universe *u)
@@ -104,11 +104,11 @@ int is_alive(struct universe *u, int column, int row)
     for (i = 0; i < u->num_living_cells; i++) {
         if (column == u->living_cells_x[i]) {
             if (row == u->living_cells_y[i]) {
-                printf("found you\n");
+                /*printf("found you\n");*/
                 return 1;
             }
         }
     }
-    printf("where are you :(\n");
+    /*printf("where are you :(\n");*/
     return 0;
 }
