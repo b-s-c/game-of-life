@@ -17,11 +17,6 @@
 
 void read_in_file(FILE *infile, struct universe *u)
 {
-    /*if ((infile = fopen("glider.txt", "r")) == NULL) {
-        printf("Can't open file\n");
-        exit (1);
-    }*/
-
     int max_index = 0;      /* track array size (same for both arrays) */
     int width = 0;          /* store width of grid*/
     int height = 0;         /* and height of grid*/
@@ -73,7 +68,7 @@ void read_in_file(FILE *infile, struct universe *u)
             }
             max_index += 1;
         } else {
-            printf("The input file contains invalid character '%c'.\n", c);
+            printf("The input file contains invalid character '%c'. Exiting.\n", c);
             exit (1);
         }
         x += 1;
@@ -93,10 +88,20 @@ void read_in_file(FILE *infile, struct universe *u)
     printf("w: %d, h: %d\n", u->width, u->height);*/
 }
 
-/* void write_out_file(FILE *outfile, struct universe *u)
+void write_out_file(FILE *outfile, struct universe *u)
 {
-    
-} */
+    int x, y;
+    for (y = 0; y < u->height; y++) {
+        for (x = 0; x < u->width; x++) {
+            if (is_alive(u, x, y)) {
+                putc('*', outfile);
+            } else {
+                putc('.', outfile);
+            }
+        }
+        putc('\n', outfile);
+    }
+}
 
 int is_alive(struct universe *u, int column, int row)
 {
@@ -111,4 +116,29 @@ int is_alive(struct universe *u, int column, int row)
     }
     /*printf("where are you :(\n");*/
     return 0;
+}
+
+int will_be_alive(struct universe *u, int column, int row)
+{
+    int x, y;
+    int alive_neighbours = 0;   /* track no. neighbours currently alive */
+    for (y = -1; y < 2; y++) {
+        for (x = -1; x < 2; x++) {
+            if (x == 0 && y == 0) {
+                continue;
+            } else if (is_alive(u, column + x, row + y)) {
+                alive_neighbours += 1;
+            }
+            if (alive_neighbours > 3) {
+                return 0;
+            }
+        }
+    }
+    if (is_alive(u, column, row) && (alive_neighbours == 2 || alive_neighbours == 3)) {
+        return 1;
+    } else if (!is_alive(u, column, row) && (alive_neighbours == 3)) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

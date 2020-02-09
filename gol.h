@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 struct universe
 {
     /* a grid of max width 512, max height infinity */
