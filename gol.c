@@ -22,7 +22,7 @@ void read_in_file(FILE *infile, struct universe *u)
         exit (1);
     }*/
 
-    int max_index = 1;      /* track array size (same for both arrays) */
+    int max_index = 0;      /* track array size (same for both arrays) */
     int width = 0;          /* store width of grid*/
     int height = 0;         /* and height of grid*/
     int c = 0;              /* store current character */
@@ -51,7 +51,6 @@ void read_in_file(FILE *infile, struct universe *u)
         } else if (c == '*') {
             /* record x and y values to arrays in struct */
             if (first_entry == TRUE) {
-                /*u = malloc(200);*/
                 u->living_cells_x = malloc(1 * sizeof(int));
                 u->living_cells_y = malloc(1 * sizeof(int));
                 u->living_cells_x[0] = x;
@@ -71,9 +70,8 @@ void read_in_file(FILE *infile, struct universe *u)
                     exit(1);
                 }
                 u->living_cells_y[max_index] = y;
-
-                max_index += 1;
             }
+            max_index += 1;
         } else {
             printf("The input file contains invalid character '%c'.\n", c);
             exit (1);
@@ -82,14 +80,35 @@ void read_in_file(FILE *infile, struct universe *u)
     }
     height = y++;
 
-    int i;
-    for (i = 0; i < max_index; i++) {
-        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
-    }
-
     /* assigning local variables to the actual struct */
     u->width = width;
     u->height = height;
+    u->num_living_cells = max_index;
 
+    int i;
+    for (i = 0; i < u->num_living_cells; i++) {
+        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
+    }
+    printf("num living cells: %d\n", u->num_living_cells);
     printf("w: %d, h: %d\n", u->width, u->height);
+}
+
+/* void write_out_file(FILE *outfile, struct universe *u)
+{
+    
+} */
+
+int is_alive(struct universe *u, int column, int row)
+{
+    int i;
+    for (i = 0; i < u->num_living_cells; i++) {
+        if (column == u->living_cells_x[i]) {
+            if (row == u->living_cells_y[i]) {
+                printf("found you\n");
+                return 1;
+            }
+        }
+    }
+    printf("where are you :(\n");
+    return 0;
 }
