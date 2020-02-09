@@ -6,6 +6,9 @@ struct universe
     int *living_cells_y;
     /* e.g. if (5, 4) was a living cell, then for some integer 'a' living_cells_x[a] would store 5 and living_cells_y[a] would store 4 */
 
+    int width;
+    int height;
+
     /* statistics */
     double percent_currently_alive;
     double percent_alive_on_average;

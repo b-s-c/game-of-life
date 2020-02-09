@@ -15,17 +15,12 @@
  * void print_statistics(struct universe *u);
 */
 
-/* must:
- * - keep count of number of cells
- * - work out percentage alive once finished
- * - keep count of no. generations
-*/
 void read_in_file(FILE *infile, struct universe *u)
 {
-    if ((infile = fopen("glider.txt", "r")) == NULL) {
+    /*if ((infile = fopen("glider.txt", "r")) == NULL) {
         printf("Can't open file\n");
         exit (1);
-    }
+    }*/
 
     int max_index = 1;      /* track array size (same for both arrays) */
     int width = 0;          /* store width of grid*/
@@ -33,10 +28,11 @@ void read_in_file(FILE *infile, struct universe *u)
     int c = 0;              /* store current character */
     int x = 0, y = 0;       /* track which cell we're at */
     int first_entry = TRUE; /* is this the first coord we're recording? */
+    //int *newp;              /* new pointer for when we need to extend the array */
 
     /* if file supplied~ */
-    while ((c=getc(infile))!=EOF) {
-        if (x == 511 && c != '\n') {  /* we're incrementing from zero, remember~ */
+    while ((c = getc(infile))!=EOF) {
+        if (x == 511 && c != '\n') {  /* w.r.t. 511: we're incrementing from zero, remember~ */
             printf("Column is over 512 characters wide (incl. newline). Exiting.\n");
             exit(1);
         }
@@ -55,27 +51,25 @@ void read_in_file(FILE *infile, struct universe *u)
         } else if (c == '*') {
             /* record x and y values to arrays in struct */
             if (first_entry == TRUE) {
+                /*u = malloc(200);*/
                 u->living_cells_x = malloc(1 * sizeof(int));
                 u->living_cells_y = malloc(1 * sizeof(int));
                 u->living_cells_x[0] = x;
                 u->living_cells_y[0] = y;
                 first_entry = FALSE;
             } else {
-                int *newp;
-                newp = realloc(u->living_cells_x, max_index * sizeof(int));
-                if (newp == NULL) {
+                u->living_cells_x = realloc(u->living_cells_x, (1 + max_index) * sizeof(int));
+                if (u->living_cells_x == NULL) {
                     printf("Out of memory\n");
                     exit(1);
                 }
-                u->living_cells_x = newp;
                 u->living_cells_x[max_index] = x;
 
-                newp = realloc(u->living_cells_y, max_index * sizeof(int));
-                if (newp == NULL) {
+                u->living_cells_y = realloc(u->living_cells_y, (1 + max_index) * sizeof(int));
+                if (u->living_cells_y == NULL) {
                     printf("Out of memory\n");
                     exit(1);
                 }
-                u->living_cells_y = newp;
                 u->living_cells_y[max_index] = y;
 
                 max_index += 1;
@@ -87,9 +81,15 @@ void read_in_file(FILE *infile, struct universe *u)
         x += 1;
     }
     height = y++;
+
     int i;
     for (i = 0; i < max_index; i++) {
         printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
     }
-    printf("w: %d, h: %d\n", width, height);
+
+    /* assigning local variables to the actual struct */
+    u->width = width;
+    u->height = height;
+
+    printf("w: %d, h: %d\n", u->width, u->height);
 }
