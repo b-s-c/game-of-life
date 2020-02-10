@@ -129,14 +129,65 @@ int will_be_alive(struct universe *u, int column, int row)
 {
     //printf("focusing on %d, %d\n", column, row);
     int x, y;
+    int targetx, targety;       /* 8 targets to inspect for each one cell */
     int alive_neighbours = 0;   /* track no. neighbours currently alive */
     for (y = -1; y < 2; y++) {
         for (x = -1; x < 2; x++) {
+            targetx = column + x;
+            targety = row + y;
+            
             //printf("testing %d, %d\n", column + x, row + y);
             if (x == 0 && y == 0) {
                 continue;
-            } else if (is_alive(u, column + x, row + y)) {
+            } else if (is_alive(u, targetx, targety)) {
                 //printf("added an alive neighbour\n");
+                alive_neighbours += 1;
+            }
+            if (alive_neighbours > 3) {
+                return 0;
+            }
+        }
+    }
+    if (is_alive(u, column, row) && (alive_neighbours == 2 || alive_neighbours == 3)) {
+        return 1;
+    } else if (!is_alive(u, column, row) && (alive_neighbours == 3)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int will_be_alive_torus(struct universe *u, int column, int row)
+{
+    /*printf("focusing on %d, %d\n", column, row);*/
+    int x, y;
+    int targetx, targety;       /* 8 targets to inspect for each one cell */
+    int alive_neighbours = 0;   /* track no. neighbours currently alive */
+    for (y = -1; y < 2; y++) {
+        for (x = -1; x < 2; x++) {
+            targetx = column + x;
+            targety = row + y;
+
+            /* fix OOB values for x*/
+            while ((targetx) < 0) { /* change negative to positive */
+                targetx += u->width;
+            }
+            if ((targetx) > (u->width - 1)) {  /* => too high, so get the x back in range of the grid */
+                targetx = targetx % u->width;
+            }
+            /* same for y */
+            while ((targety) < 0) { /* change negative to positive */
+                targety += u->height;
+            }
+            if ((targety) > (u->height - 1)) {  /* => too high, so get the y back in range of the grid */
+                targety = targety % u->height;
+            }
+
+            /*printf("testing %d, %d\n", column + x, row + y);*/
+            if (x == 0 && y == 0) { /* we should not check the space we're targetting */
+                continue;
+            } else if (is_alive(u, targetx, targety)) {
+                /*printf("added an alive neighbour\n");*/
                 alive_neighbours += 1;
             }
             if (alive_neighbours > 3) {
@@ -201,6 +252,6 @@ void evolve (struct universe *u, int(*rule)(struct universe *u, int column, int 
 
 void print_statistics(struct universe *u)
 {
-    printf("%3.3f%% of cells currently alive\n", (u->num_living_cells/(u->width*u->height)));
-    printf("%3.3f%% of cells alive on average\n", (u->total_cells_ever_lived / (u->width*u->height*u->num_generations)));
+    printf("\n%3.3f%% of cells currently alive\n", 100*(u->num_living_cells/(u->width*u->height)));
+    printf("%3.3f%% of cells alive on average\n", 100*(u->total_cells_ever_lived / (u->width*u->height*u->num_generations)));
 }
