@@ -23,9 +23,7 @@ void read_in_file(FILE *infile, struct universe *u)
     int c = 0;              /* store current character */
     int x = 0, y = 0;       /* track which cell we're at */
     int first_entry = TRUE; /* is this the first coord we're recording? */
-    //int *newp;              /* new pointer for when we need to extend the array */
 
-    /* if file supplied~ */
     while ((c = getc(infile))!=EOF) {
         if (x == 511 && c != '\n') {  /* w.r.t. 511: we're incrementing from zero, remember~ */
             printf("Column is over 512 characters wide (incl. newline). Exiting.\n");
@@ -34,7 +32,10 @@ void read_in_file(FILE *infile, struct universe *u)
         if (c == '.') {
         } else if (c == '\n') {
             /* new row reached */
-            y += 1;
+            if (x == 0) {
+                printf("You have entered a blank line. Exiting.\n");
+                exit(1);
+            } y += 1;
             if (width == 0) {
                 width = x++;
             } else if (x++ != width) {
@@ -77,22 +78,23 @@ void read_in_file(FILE *infile, struct universe *u)
         }
         x += 1;
     }
+    if (width == 0) {
+        printf("Empty input. Exiting.\n");
+        exit(1);
+    }
     height = y++;
 
     /* assigning local variables to the actual struct */
     u->width = width;
     u->height = height;
     u->num_living_cells = max_index;
-    printf("currently %f alive\n", u->num_living_cells);
     u->total_cells_ever_lived = max_index;
     u->num_generations = 1;
 
-    /*int i;
+    int i;
     for (i = 0; i < u->num_living_cells; i++) {
         printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
     }
-    printf("num living cells: %d\n", u->num_living_cells);
-    printf("w: %d, h: %d\n", u->width, u->height);*/
 }
 
 void write_out_file(FILE *outfile, struct universe *u)
@@ -127,7 +129,6 @@ int is_alive(struct universe *u, int column, int row)
 
 int will_be_alive(struct universe *u, int column, int row)
 {
-    //printf("focusing on %d, %d\n", column, row);
     int x, y;
     int targetx, targety;       /* 8 targets to inspect for each one cell */
     int alive_neighbours = 0;   /* track no. neighbours currently alive */
@@ -136,11 +137,9 @@ int will_be_alive(struct universe *u, int column, int row)
             targetx = column + x;
             targety = row + y;
             
-            //printf("testing %d, %d\n", column + x, row + y);
-            if (x == 0 && y == 0) {
+            if (x == 0 && y == 0) { /* we should not check the space we're targetting */
                 continue;
             } else if (is_alive(u, targetx, targety)) {
-                //printf("added an alive neighbour\n");
                 alive_neighbours += 1;
             }
             if (alive_neighbours > 3) {
@@ -159,7 +158,6 @@ int will_be_alive(struct universe *u, int column, int row)
 
 int will_be_alive_torus(struct universe *u, int column, int row)
 {
-    /*printf("focusing on %d, %d\n", column, row);*/
     int x, y;
     int targetx, targety;       /* 8 targets to inspect for each one cell */
     int alive_neighbours = 0;   /* track no. neighbours currently alive */
@@ -168,7 +166,7 @@ int will_be_alive_torus(struct universe *u, int column, int row)
             targetx = column + x;
             targety = row + y;
 
-            /* fix OOB values for x*/
+            /* fix OOB values for x */
             while ((targetx) < 0) { /* change negative to positive */
                 targetx += u->width;
             }
@@ -183,11 +181,9 @@ int will_be_alive_torus(struct universe *u, int column, int row)
                 targety = targety % u->height;
             }
 
-            /*printf("testing %d, %d\n", column + x, row + y);*/
             if (x == 0 && y == 0) { /* we should not check the space we're targetting */
                 continue;
             } else if (is_alive(u, targetx, targety)) {
-                /*printf("added an alive neighbour\n");*/
                 alive_neighbours += 1;
             }
             if (alive_neighbours > 3) {
@@ -206,48 +202,41 @@ int will_be_alive_torus(struct universe *u, int column, int row)
 
 void evolve (struct universe *u, int(*rule)(struct universe *u, int column, int row))
 {
-    int x, y;
-    int array_length = u->width * u->height;
-    /*printf("array size: %d\n", array_length);*/
-    int newx[array_length];
-    int newy[array_length];
-    int i = 0, j = 0;
-    for (y = 0; y < u->height; y++) {
-        for (x = 0; x < u->width; x++) {
-            if (rule(u, x, y)) {
-                newx[i] = x;
-                newy[i] = y;
-                /*printf("%d, %d\n", newx[i], newy[i]);*/
-                i++;
+    if (u->num_living_cells > 0) {
+        int x, y;
+        int array_length = u->width * u->height;
+        int newx[array_length];
+        int newy[array_length];
+        int i = 0, j = 0;
+        for (y = 0; y < u->height; y++) {
+            for (x = 0; x < u->width; x++) {
+                if (rule(u, x, y)) {
+                    newx[i] = x;
+                    newy[i] = y;
+                    i++;
+                }
             }
         }
+        free(u->living_cells_x);
+        free(u->living_cells_y);
+        u->living_cells_x = malloc((i+1)*sizeof(int));
+        u->living_cells_y = malloc((i+1)*sizeof(int));
+
+        if (u->living_cells_x == NULL || u->living_cells_y == NULL) {
+            printf("Memory allocation failure. Exiting.\n");
+            exit(1);
+        }
+        while (j < i) {
+            u->living_cells_x[j] = newx[j];
+            u->living_cells_y[j] = newy[j];
+            j++;
+        }
+        
+        /* update stats */
+        u->num_living_cells = j;
+        u->total_cells_ever_lived += j;
+        u->num_generations += 1.0;
     }
-    free(u->living_cells_x);
-    free(u->living_cells_y);
-    u->living_cells_x = malloc((i+1)*sizeof(int));
-    u->living_cells_y = malloc((i+1)*sizeof(int));
-    /*for (i = 0; i < u->num_living_cells; i++) {
-        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
-    }*/
-    if (u->living_cells_x == NULL || u->living_cells_y == NULL) {
-        printf("Memory allocation failure. Exiting.\n");
-        exit(1);
-    }
-    while (j < i) {
-        u->living_cells_x[j] = newx[j];
-        u->living_cells_y[j] = newy[j];
-        j++;
-    }
-    putchar('\n');
-    /*for (i = 0; i < u->num_living_cells; i++) {
-        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
-    }*/
-    
-    /* update stats */
-    u->num_living_cells = j;
-    u->total_cells_ever_lived += j;
-    u->num_generations += 1.0;
-    printf("%f, %f, %d\n", u->num_living_cells, u->total_cells_ever_lived, u->num_generations);
 }
 
 void print_statistics(struct universe *u)
