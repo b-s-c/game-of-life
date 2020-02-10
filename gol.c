@@ -48,20 +48,24 @@ void read_in_file(FILE *infile, struct universe *u)
             if (first_entry == TRUE) {
                 u->living_cells_x = malloc(1 * sizeof(int));
                 u->living_cells_y = malloc(1 * sizeof(int));
+                if (u->living_cells_x == NULL || u->living_cells_y == NULL) {
+                    printf("Memory allocation failure. Exiting.\n");
+                    exit(1);
+                }
                 u->living_cells_x[0] = x;
                 u->living_cells_y[0] = y;
                 first_entry = FALSE;
             } else {
                 u->living_cells_x = realloc(u->living_cells_x, (1 + max_index) * sizeof(int));
                 if (u->living_cells_x == NULL) {
-                    printf("Out of memory\n");
+                    printf("Memory allocation failure. Exiting.\n");
                     exit(1);
                 }
                 u->living_cells_x[max_index] = x;
 
                 u->living_cells_y = realloc(u->living_cells_y, (1 + max_index) * sizeof(int));
                 if (u->living_cells_y == NULL) {
-                    printf("Out of memory\n");
+                    printf("Memory allocation failure. Exiting.\n");
                     exit(1);
                 }
                 u->living_cells_y[max_index] = y;
@@ -79,6 +83,9 @@ void read_in_file(FILE *infile, struct universe *u)
     u->width = width;
     u->height = height;
     u->num_living_cells = max_index;
+    printf("currently %f alive\n", u->num_living_cells);
+    u->total_cells_ever_lived = max_index;
+    u->num_generations = 1;
 
     /*int i;
     for (i = 0; i < u->num_living_cells; i++) {
@@ -120,13 +127,16 @@ int is_alive(struct universe *u, int column, int row)
 
 int will_be_alive(struct universe *u, int column, int row)
 {
+    //printf("focusing on %d, %d\n", column, row);
     int x, y;
     int alive_neighbours = 0;   /* track no. neighbours currently alive */
     for (y = -1; y < 2; y++) {
         for (x = -1; x < 2; x++) {
+            //printf("testing %d, %d\n", column + x, row + y);
             if (x == 0 && y == 0) {
                 continue;
             } else if (is_alive(u, column + x, row + y)) {
+                //printf("added an alive neighbour\n");
                 alive_neighbours += 1;
             }
             if (alive_neighbours > 3) {
@@ -141,4 +151,56 @@ int will_be_alive(struct universe *u, int column, int row)
     } else {
         return 0;
     }
+}
+
+void evolve (struct universe *u, int(*rule)(struct universe *u, int column, int row))
+{
+    int x, y;
+    int array_length = u->width * u->height;
+    /*printf("array size: %d\n", array_length);*/
+    int newx[array_length];
+    int newy[array_length];
+    int i = 0, j = 0;
+    for (y = 0; y < u->height; y++) {
+        for (x = 0; x < u->width; x++) {
+            if (rule(u, x, y)) {
+                newx[i] = x;
+                newy[i] = y;
+                /*printf("%d, %d\n", newx[i], newy[i]);*/
+                i++;
+            }
+        }
+    }
+    free(u->living_cells_x);
+    free(u->living_cells_y);
+    u->living_cells_x = malloc((i+1)*sizeof(int));
+    u->living_cells_y = malloc((i+1)*sizeof(int));
+    /*for (i = 0; i < u->num_living_cells; i++) {
+        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
+    }*/
+    if (u->living_cells_x == NULL || u->living_cells_y == NULL) {
+        printf("Memory allocation failure. Exiting.\n");
+        exit(1);
+    }
+    while (j < i) {
+        u->living_cells_x[j] = newx[j];
+        u->living_cells_y[j] = newy[j];
+        j++;
+    }
+    putchar('\n');
+    /*for (i = 0; i < u->num_living_cells; i++) {
+        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
+    }*/
+    
+    /* update stats */
+    u->num_living_cells = j;
+    u->total_cells_ever_lived += j;
+    u->num_generations += 1.0;
+    printf("%f, %f, %d\n", u->num_living_cells, u->total_cells_ever_lived, u->num_generations);
+}
+
+void print_statistics(struct universe *u)
+{
+    printf("%3.3f%% of cells currently alive\n", (u->num_living_cells/(u->width*u->height)));
+    printf("%3.3f%% of cells alive on average\n", (u->total_cells_ever_lived / (u->width*u->height*u->num_generations)));
 }
