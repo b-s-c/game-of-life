@@ -230,6 +230,7 @@ void evolve (struct universe *u, int(*rule)(struct universe *u, int column, int 
             u->living_cells_x[j] = newx[j];
             u->living_cells_y[j] = newy[j];
             j++;
+            //printf("new cell at %d, %d\n", newx[j], newy[j]);
         }
         
         /* update stats */
