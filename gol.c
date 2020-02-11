@@ -93,7 +93,7 @@ void read_in_file(FILE *infile, struct universe *u)
 
     int i;
     for (i = 0; i < u->num_living_cells; i++) {
-        printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
+        //printf("%d, %d\n", u->living_cells_x[i], u->living_cells_y[i]);
     }
 }
 

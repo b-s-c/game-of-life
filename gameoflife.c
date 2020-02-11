@@ -14,19 +14,20 @@ int main(int argc, char *argv[])
 {
     int sflag = FALSE;      /* Bools for 's' and 't' */
     int tflag = FALSE;
+    int iinit = FALSE;
     int iflag = FALSE;      /* used to determine whether or not to write a newline before output (purely for keeping the program output neat) */
+    int oinit = FALSE;
     int oflag = FALSE;
+    int ginit = FALSE;
     int gflag = FALSE;
     char ivalue[50] = "";    /* "strings" for i, o, g */
     char ovalue[50] = "";
     char gvalue[50] = "";  
-    int c = 0;              /* store current argument during scanning with getopt */
     char current_arg = '0';
     char arg_param[50];
     int arg_primed = FALSE;
     int gen;
 
-    int arg_i = 0;
     printf("no. args: %d\n", argc);
 
     for (int i = 1; i<argc; i++) {
@@ -35,15 +36,15 @@ int main(int argc, char *argv[])
             switch(argv[i][1]) {
                 case 'i':
                     current_arg = 'i';
-                    iflag = TRUE;
+                    iinit = TRUE;
                     break;
                 case 'o':
                     current_arg = 'o';
-                    oflag = TRUE;
+                    oinit = TRUE;
                     break;
                 case 'g':
                     current_arg = 'g';
-                    gflag = TRUE;
+                    ginit = TRUE;
                     break;
                 case 's':
                     current_arg = 's';
@@ -68,98 +69,61 @@ int main(int argc, char *argv[])
             switch(current_arg) {
                 case 'i':
                     strcpy(ivalue, arg_param);
+                    iflag = TRUE;
                     break;
                 case 'o':
                     strcpy(ovalue, arg_param);
+                    oflag = TRUE;
                     break;
                 case 'g':
                     strcpy(gvalue, arg_param);
                     gen = atoi(gvalue);
+                    gflag = TRUE;
                     break;
             }
             arg_primed = FALSE;
         }
-
     }
 
     printf("sflag set to %d\n", sflag);
     printf("tflag set to %d\n", tflag);
+    printf("gflag set to %d\n", gflag);
     printf("Input file: %s\n", ivalue);
     printf("Output file: %s\n", ovalue);
     printf("Number of generations: %d\n", gen);
 
-
-
-
-
-
-//    exit(1);
-    opterr = 0;             /* ensure zero value, and therefore getopt will exhibit default behaviour */
-
-    /*
-     parse arguments 
-    while ((c=getopt(argc, argv, "i:o:g:st")) != -1) {
-        switch(c) {
-            case 's':
-                sflag = TRUE;
-                break;
-            case 't':
-                tflag = TRUE;
-                break;
-            case 'i':
-                ivalue = optarg;
-                iflag = TRUE;
-                break;
-            case 'o':
-                ovalue = optarg;
-                break;
-            case 'g':
-                gvalue = optarg;
-                break;
-            case '?':
-                if (optopt == 'g' || optopt == 'i' || optopt == 'o') {
-                    printf("The option %c requires a corresponding argument. Exiting.\n", optopt);
-                    exit(1);
-                }
-                printf("Unknown option %c. Exiting.\n", optopt);
-                exit(1);
-            default:
-                exit(1);
-        }
-    } */
-
     FILE *outfile;
-    if (oflag) {
+    if (oflag && oinit) {
         if ((outfile = fopen(ovalue, "r")) == NULL) {
             printf("Can't open output file (does it exist?). Exiting.\n");
             exit (1);
         }
+    } else if (oinit && !oflag) {
+        printf("Invalid parameter passed through -o (is it empty?). Exiting.\n");
+        exit (1);
     } else {
         outfile = stdout;
     }
 
     FILE *infile;
-    if (iflag) {
+    if (iflag && iinit) {
         if ((infile = fopen(ivalue, "r")) == NULL) {
             printf("Can't open input file (does it exist?). Exiting.\n");
             exit (1);
         }
+    } else if (iinit && !iflag) {
+        printf("Invalid parameter passed through -i (is it empty?). Exiting.\n");
+        exit (1);
     } else {
         infile = stdin;
     }
 
-    if (gen == 0) {
-        printf("Invalid parameter passed through -g (is it a number?). Exiting.\n");
-        exit (1);
-    } 
-
-    /* for debugging
-    printf("sflag set to %d\n", sflag);
-    printf("tflag set to %d\n", tflag);
-    printf("Input file: %s\n", ivalue);
-    printf("Output file: %s\n", ovalue);
-    printf("Number of generations: %d\n", gen);
-    */
+    if (gen == 0 || (ginit == TRUE && gflag == FALSE)) {
+            printf("Invalid parameter passed through -g (is it a number?). Exiting.\n");
+            exit (1);
+    } else if (ginit == FALSE)  {
+        gen = 5;
+    }
 
     /* initialise a universe */
     struct universe v;
