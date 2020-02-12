@@ -45,12 +45,20 @@ int main(int argc, char *argv[])
                 case 's':
                     current_arg = 's';
                     sflag = 1;
+                    if (argv[i][2] == 't') {
+                        tflag = 1;
+                    }
                     break;
                 case 't':
                     current_arg = 't';
                     tflag = 1;
+                    if (argv[i][2] == 's') {
+                        sflag = 1;
+                    }
                     break;
                 default:
+                    printf("Invalid parameter passed: %c. Exiting.\n", argv[i][1]);
+                    exit(1);
                     break;
             }
         } else {
@@ -105,11 +113,21 @@ int main(int argc, char *argv[])
     }
 
     if (gen == 0 || (ginit == TRUE && gflag == FALSE)) {
-            printf("Invalid parameter passed through -g (is it a number?). Exiting.\n");
+            printf("Invalid parameter passed through -g (it should be an integer greater than 0). Exiting.\n");
             exit (1);
-    } else if (ginit == FALSE)  {
+    }
+    if (ginit == FALSE)  {
         gen = 5;
     }
+
+    /* very useful for debugging argument parser */
+    /*
+    printf("sflag set to %d\n", sflag);
+    printf("tflag set to %d\n", tflag);
+    printf("Input file: %s\n", ivalue);
+    printf("Output file: %s\n", ovalue);
+    printf("Number of generations: %d\n", gen);
+    */
 
     /* initialise a universe */
     struct universe v;
