@@ -19,15 +19,18 @@ int main(int argc, char *argv[])
     int oflag = FALSE;
     int ginit = FALSE;
     int gflag = FALSE;
-    char ivalue[50];        /* "strings" storing the parameters for i, o, g */
+    char ivalue[50];        /* "strings" for i, o, g */
     char ovalue[50];
     char gvalue[50];  
     char current_arg = '0';
     char arg_param[50];
     int arg_primed = FALSE;
-    int gen = 5;
+    int gen;
+
+    //printf("no. args: %d\n", argc);
 
     for (int i = 1; i<argc; i++) {
+        //printf("arg %d: %s\n", i, argv[i]);
         if (argv[i][0] == '-') {
             switch(argv[i][1]) {
                 case 'i':
@@ -56,9 +59,12 @@ int main(int argc, char *argv[])
         } else {
             strcpy(arg_param, argv[i]); /* unsafe: potential for buffer overflow */
             arg_primed = TRUE;
+            //printf("other: %s\n", arg_param);
         }
 
+        //printf("current_arg: %c\n", current_arg);
         if ((current_arg == 'i' || current_arg == 'o' || current_arg == 'g') && arg_primed) {
+            //printf("looking to assign arg_param %s to %c\n", arg_param, current_arg);
             switch(current_arg) {
                 case 'i':
                     strcpy(ivalue, arg_param);
@@ -78,11 +84,20 @@ int main(int argc, char *argv[])
         }
     }
 
+    /*printf("sflag set to %d\n", sflag);
+    printf("tflag set to %d\n", tflag);
+    printf("gflag set to %d\n", gflag);
+    printf("Input file: %s\n", ivalue);
+    printf("Output file: %s\n", ovalue);
+    printf("Number of generations: %d\n", gen);*/
+
     FILE *outfile;
     if (oflag && oinit) {
         if ((outfile = fopen(ovalue, "w")) == NULL) {
             printf("Can't open output file (does it exist?). Exiting.\n");
             exit (1);
+        } else {
+            printf("successfully read outfile\n");
         }
     } else if (oinit && !oflag) {
         printf("Invalid parameter passed through -o (is it empty?). Exiting.\n");
@@ -110,6 +125,7 @@ int main(int argc, char *argv[])
     } else if (ginit == FALSE)  {
         gen = 5;
     }
+    //printf("gen: %d\n", gen);
 
     /* initialise a universe */
     struct universe v;
@@ -131,9 +147,9 @@ int main(int argc, char *argv[])
     }
 
     /* write output */
-    if (!iflag && !oflag) {
-        putchar('\n');  /* purely for aesthetic purposes */
-    }
+    /*if (!iflag) {
+        putchar('\n');
+    }*/
     write_out_file(outfile, &v);
 
     /* print stats after final generation, if required */

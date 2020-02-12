@@ -14,7 +14,7 @@ fi
 diff  --ignore-trailing-space --ignore-blank-lines -q output.txt glider_output.txt
 if [ $? -eq 0 ]
 then
-  echo Test passed: Correct output
+  printf "Test passed: Correct output\n\nAll done!\n"
 else
   echo Test failed: Wrong output
 fi
