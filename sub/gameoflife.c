@@ -32,28 +32,59 @@ int main(int argc, char *argv[])
             switch(argv[i][1]) {
                 case 'i':
                     current_arg = 'i';
-                    iinit = TRUE;
+                    if (iinit == FALSE) {
+                        iinit = TRUE;
+                    } else {
+                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
+                        exit(1);
+                    }
                     break;
                 case 'o':
                     current_arg = 'o';
-                    oinit = TRUE;
+                    if (oinit == FALSE) {
+                        oinit = TRUE;
+                    } else {
+                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
+                        exit(1);
+                    }
                     break;
                 case 'g':
                     current_arg = 'g';
-                    ginit = TRUE;
+                    if (ginit == FALSE) {
+                        ginit = TRUE;
+                    } else {
+                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
+                        exit(1);
+                    }
                     break;
                 case 's':
                     current_arg = 's';
-                    sflag = 1;
+                    if (sflag == FALSE) {
+                        sflag = TRUE;
+                    } else {
+                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
+                        exit(1);
+                    }
                     if (argv[i][2] == 't') {
                         tflag = 1;
+                    } else {
+                        printf("Argument '%c' is invalid or has not been passed correctly.\n", argv[i][2]);
+                        exit(1);
                     }
                     break;
                 case 't':
                     current_arg = 't';
-                    tflag = 1;
+                    if (tflag == FALSE) {
+                        tflag = TRUE;
+                    } else {
+                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
+                        exit(1);
+                    }
                     if (argv[i][2] == 's') {
                         sflag = 1;
+                    } else {
+                        printf("Argument '%c' is invalid or has not been passed correctly. Exiting.\n", argv[i][2]);
+                        exit(1);
                     }
                     break;
                 default:
