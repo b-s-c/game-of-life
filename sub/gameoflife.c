@@ -67,9 +67,6 @@ int main(int argc, char *argv[])
                     }
                     if (argv[i][2] == 't') {
                         tflag = 1;
-                    } else {
-                        printf("Argument '%c' is invalid or has not been passed correctly.\n", argv[i][2]);
-                        exit(1);
                     }
                     break;
                 case 't':
@@ -82,9 +79,6 @@ int main(int argc, char *argv[])
                     }
                     if (argv[i][2] == 's') {
                         sflag = 1;
-                    } else {
-                        printf("Argument '%c' is invalid or has not been passed correctly. Exiting.\n", argv[i][2]);
-                        exit(1);
                     }
                     break;
                 default:
