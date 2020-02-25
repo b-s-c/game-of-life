@@ -32,51 +32,26 @@ int main(int argc, char *argv[])
             switch(argv[i][1]) {
                 case 'i':
                     current_arg = 'i';
-                    if (iinit == FALSE) {
-                        iinit = TRUE;
-                    } else {
-                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
-                        exit(1);
-                    }
+                    iinit = TRUE;
                     break;
                 case 'o':
                     current_arg = 'o';
-                    if (oinit == FALSE) {
-                        oinit = TRUE;
-                    } else {
-                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
-                        exit(1);
-                    }
+                    oinit = TRUE;
                     break;
                 case 'g':
                     current_arg = 'g';
-                    if (ginit == FALSE) {
-                        ginit = TRUE;
-                    } else {
-                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
-                        exit(1);
-                    }
+                    ginit = TRUE;
                     break;
                 case 's':
                     current_arg = 's';
-                    if (sflag == FALSE) {
-                        sflag = TRUE;
-                    } else {
-                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
-                        exit(1);
-                    }
+                    sflag = 1;
                     if (argv[i][2] == 't') {
                         tflag = 1;
                     }
                     break;
                 case 't':
                     current_arg = 't';
-                    if (tflag == FALSE) {
-                        tflag = TRUE;
-                    } else {
-                        printf("Parameter %c passed more than once. Exiting.\n", current_arg);
-                        exit(1);
-                    }
+                    tflag = 1;
                     if (argv[i][2] == 's') {
                         sflag = 1;
                     }
