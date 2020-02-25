@@ -11,10 +11,12 @@
 
 int main(int argc, char *argv[])
 {
-    int sflag = FALSE;      /* Bools for 's' and 't' */
+    /* *flag is marked when a value has been assigned to the variable specified.
+     * *init marks the point where we recognise that the variable is about to be assigned a value. */ 
+    int sflag = FALSE;
     int tflag = FALSE;
     int iinit = FALSE;
-    int iflag = FALSE;      /* used to determine whether or not to write a newline before output (purely for keeping the program output neat) */
+    int iflag = FALSE;
     int oinit = FALSE;
     int oflag = FALSE;
     int ginit = FALSE;
@@ -32,14 +34,35 @@ int main(int argc, char *argv[])
             switch(argv[i][1]) {
                 case 'i':
                     current_arg = 'i';
+                    if (iflag) {
+                        //printf("ivalue: %s, nextarg: %s\n", ivalue, argv[i+1]);
+                        if (strcmp(ivalue,  argv[i + 1])) {
+                            printf("Two different values defined for i. Exiting.\n");
+                            exit(1);
+                        }
+                    }
                     iinit = TRUE;
                     break;
                 case 'o':
                     current_arg = 'o';
+                    if (oflag) {
+                        //printf("ovalue: %s, nextarg: %s\n", ovalue, argv[i+1]);
+                        if (strcmp(ovalue,  argv[i + 1])) {
+                            printf("Two different values defined for o. Exiting.\n");
+                            exit(1);
+                        }
+                    }
                     oinit = TRUE;
                     break;
                 case 'g':
                     current_arg = 'g';
+                    if (gflag) {
+                        //printf("gvalue: %s, nextarg: %s\n", gvalue, argv[i+1]);
+                        if (strcmp(gvalue,  argv[i + 1])) {
+                            printf("Two different values defined for g. Exiting.\n");
+                            exit(1);
+                        }
+                    }
                     ginit = TRUE;
                     break;
                 case 's':
@@ -79,6 +102,7 @@ int main(int argc, char *argv[])
                 case 'g':
                     strcpy(gvalue, arg_param);
                     gen = atoi(gvalue);
+                    printf("gen: %d\n", gen);
                     gflag = TRUE;
                     break;
             }
@@ -112,7 +136,7 @@ int main(int argc, char *argv[])
         infile = stdin;
     }
 
-    if (gen == 0 || (ginit == TRUE && gflag == FALSE)) {
+    if (gen < 0 || (ginit == TRUE && gflag == FALSE)) {
             printf("Invalid parameter passed through -g (it should be an integer greater than 0). Exiting.\n");
             exit (1);
     }
@@ -150,7 +174,7 @@ int main(int argc, char *argv[])
 
     /* write output */
     if (!iflag && !oflag) {
-        putchar('\n');  /* purely for aesthetic purposes */
+        putchar('\n');  /* to differentiate between your input and the output */
     }
     write_out_file(outfile, &v);
 
